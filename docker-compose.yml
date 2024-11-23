@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:latest
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: app_development
+    networks:
+      - app_network
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - .:/app:cached
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://postgres:password@db:5432/app_development
+      RAILS_ENV: development
+    stdin_open: true
+    tty: true
+    command: >
+      sh -c "chown -R $(id -u):$(id -g) /app && bundle install && rails server -b 0.0.0.0"
+    networks:
+      - app_network
+
+volumes:
+  db_data:
+    driver: local
+
+networks:
+  app_network:
