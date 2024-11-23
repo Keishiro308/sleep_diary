@@ -1,9 +1,5 @@
 #!/bin/bash
-# Fix permissions
-chown -R appuser:appuser /app
-
-# Install gems
-bundle install
+rm tmp/pids/server.pid
 
 # Start the server
 exec "$@"
